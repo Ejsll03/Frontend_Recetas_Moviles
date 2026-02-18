@@ -6,13 +6,17 @@ import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import RecipesScreen from "./screens/RecipesScreen";
+import PublicRecipesScreen from "./screens/PublicRecipesScreen";
+import FavoritesScreen from "./screens/FavoritesScreen";
+import RecipeGroupsScreen from "./screens/RecipeGroupsScreen";
 
 const API_URL = "http://192.168.0.138:5000"; // Cambia a la URL de tu backend si usas dispositivo físico
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState("login"); // login | register | profile | recipes
+  const [currentScreen, setCurrentScreen] = useState("login"); // login | register | profile | recipes | favorites | public | groups
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [currentTab, setCurrentTab] = useState("recipes"); // recipes | favorites | public | groups
 
   // Al iniciar la app, verificar si ya hay sesión activa
   useEffect(() => {
@@ -35,6 +39,7 @@ export default function App() {
           if (profileRes.ok) {
             setUser(profileDataJson.user);
             setCurrentScreen("recipes");
+            setCurrentTab("recipes");
           }
         }
       } catch (error) {
@@ -90,6 +95,7 @@ export default function App() {
           onLoginSuccess={(loggedUser) => {
             setUser(loggedUser);
             setCurrentScreen("recipes");
+            setCurrentTab("recipes");
           }}
           goToRegister={() => setCurrentScreen("register")} 
         />
@@ -114,7 +120,10 @@ export default function App() {
             setUser(null);
             setCurrentScreen("login");
           }}
-          onGoToRecipes={() => setCurrentScreen("recipes")}
+          onGoToRecipes={() => {
+            setCurrentScreen("recipes");
+            setCurrentTab("recipes");
+          }}
         />
       )}
       {currentScreen === "recipes" && (
@@ -123,6 +132,119 @@ export default function App() {
           setLoading={setLoading}
           onBack={() => setCurrentScreen("profile")}
         />
+      )}
+      {currentScreen === "favorites" && <FavoritesScreen />}
+      {currentScreen === "public" && (
+        <PublicRecipesScreen apiUrl={API_URL} setLoading={setLoading} />
+      )}
+      {currentScreen === "groups" && <RecipeGroupsScreen />}
+
+      {user && currentScreen !== "login" && currentScreen !== "register" && (
+        <View style={styles.tabBarContainer}>
+          <View style={styles.tabBar}>
+            <TouchableOpacity
+              style={[
+                styles.tabItem,
+                currentTab === "favorites" && styles.tabItemActive,
+              ]}
+              onPress={() => {
+                setCurrentScreen("favorites");
+                setCurrentTab("favorites");
+              }}
+            >
+              <MaterialIcons
+                name="favorite-border"
+                size={22}
+                color={
+                  currentTab === "favorites" ? "#f97316" : "#6b7280"
+                }
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  currentTab === "favorites" && styles.tabLabelActive,
+                ]}
+              >
+                Favoritos
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.tabItem,
+                currentTab === "recipes" && styles.tabItemActive,
+              ]}
+              onPress={() => {
+                setCurrentScreen("recipes");
+                setCurrentTab("recipes");
+              }}
+            >
+              <MaterialIcons
+                name="restaurant-menu"
+                size={22}
+                color={currentTab === "recipes" ? "#f97316" : "#6b7280"}
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  currentTab === "recipes" && styles.tabLabelActive,
+                ]}
+              >
+                Mis recetas
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.tabItem,
+                currentTab === "public" && styles.tabItemActive,
+              ]}
+              onPress={() => {
+                setCurrentScreen("public");
+                setCurrentTab("public");
+              }}
+            >
+              <MaterialIcons
+                name="public"
+                size={22}
+                color={currentTab === "public" ? "#f97316" : "#6b7280"}
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  currentTab === "public" && styles.tabLabelActive,
+                ]}
+              >
+                Públicas
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.tabItem,
+                currentTab === "groups" && styles.tabItemActive,
+              ]}
+              onPress={() => {
+                setCurrentScreen("groups");
+                setCurrentTab("groups");
+              }}
+            >
+              <MaterialIcons
+                name="folder-special"
+                size={22}
+                color={currentTab === "groups" ? "#f97316" : "#6b7280"}
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  currentTab === "groups" && styles.tabLabelActive,
+                ]}
+              >
+                Grupos
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       )}
     </SafeAreaView>
   );
@@ -153,6 +275,43 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 10,
+  },
+  tabBarContainer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    paddingTop: 4,
+    backgroundColor: "transparent",
+  },
+  tabBar: {
+    flexDirection: "row",
+    backgroundColor: "#020617",
+    borderRadius: 24,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#1f2937",
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 4,
+  },
+  tabItemActive: {},
+  tabLabel: {
+    marginTop: 2,
+    fontSize: 11,
+    color: "#6b7280",
+  },
+  tabLabelActive: {
+    color: "#f97316",
+    fontWeight: "600",
   },
   profileButton: {
     paddingHorizontal: 10,

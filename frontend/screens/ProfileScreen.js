@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
 
 export default function ProfileScreen({
@@ -120,116 +121,143 @@ export default function ProfileScreen({
   };
 
   return (
-    <View style={styles.formContainer}>
-      <Text style={styles.title}>Perfil</Text>
-      {user && (
-        <Text style={styles.subtitle}>ID: {user._id || user.id}</Text>
-      )}
-
-      <TextInput
-        style={styles.input}
-        placeholder="Usuario"
-        autoCapitalize="none"
-        value={profileData.username}
-        onChangeText={(text) =>
-          setProfileData({ ...profileData, username: text })
-        }
+    <View style={styles.screen}>
+      <Image
+        source={require("../assets/splash-icon.png")}
+        style={styles.heroImage}
+        resizeMode="cover"
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Correo"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={profileData.email}
-        onChangeText={(text) => setProfileData({ ...profileData, email: text })}
-      />
+      <View style={styles.formContainer}>
+        <Text style={styles.title}>Tu perfil</Text>
+        {user && (
+          <Text style={styles.subtitle}>@{user.username}</Text>
+        )}
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nueva contraseña (opcional)"
-        secureTextEntry
-        value={profileData.password}
-        onChangeText={(text) =>
-          setProfileData({ ...profileData, password: text })
-        }
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Usuario"
+          placeholderTextColor="#6b7280"
+          autoCapitalize="none"
+          value={profileData.username}
+          onChangeText={(text) =>
+            setProfileData({ ...profileData, username: text })
+          }
+        />
 
-      <TouchableOpacity style={styles.button} onPress={handleUpdateProfile}>
-        <Text style={styles.buttonText}>Guardar cambios</Text>
-      </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="Correo"
+          placeholderTextColor="#6b7280"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={profileData.email}
+          onChangeText={(text) =>
+            setProfileData({ ...profileData, email: text })
+          }
+        />
 
-      <TouchableOpacity style={styles.recipesButton} onPress={onGoToRecipes}>
-        <Text style={styles.recipesButtonText}>Mis recetas</Text>
-      </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="Nueva contraseña (opcional)"
+          placeholderTextColor="#6b7280"
+          secureTextEntry
+          value={profileData.password}
+          onChangeText={(text) =>
+            setProfileData({ ...profileData, password: text })
+          }
+        />
 
-      <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
-        <Text style={styles.deleteButtonText}>Eliminar cuenta</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleUpdateProfile}>
+          <Text style={styles.buttonText}>Guardar cambios</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.recipesButton} onPress={onGoToRecipes}>
+          <Text style={styles.recipesButtonText}>Mis recetas</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={handleDeleteAccount}
+        >
+          <Text style={styles.deleteButtonText}>Eliminar cuenta</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#020617",
+  },
+  heroImage: {
+    width: "100%",
+    height: "35%",
+  },
   formContainer: {
-    marginHorizontal: 24,
+    flex: 1,
+    marginTop: -24,
+    marginHorizontal: 16,
     padding: 24,
-    borderRadius: 16,
-    backgroundColor: "#ffffff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    backgroundColor: "#020617",
+    borderWidth: 1,
+    borderColor: "#1f2937",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: 4,
     textAlign: "center",
-    color: "#111827",
+    color: "#f9fafb",
   },
   subtitle: {
-    fontSize: 12,
-    color: "#6b7280",
-    marginBottom: 8,
+    fontSize: 13,
+    color: "#9ca3af",
+    marginBottom: 16,
     textAlign: "center",
   },
   input: {
     height: 44,
     borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
-    paddingHorizontal: 12,
+    borderColor: "#4b5563",
+    borderRadius: 999,
+    paddingHorizontal: 16,
     marginBottom: 12,
-    backgroundColor: "#f9fafb",
+    backgroundColor: "#020617",
+    color: "#f9fafb",
   },
   button: {
-    backgroundColor: "#4f46e5",
-    paddingVertical: 12,
-    borderRadius: 8,
+    backgroundColor: "#f97316",
+    paddingVertical: 14,
+    borderRadius: 999,
     alignItems: "center",
     marginTop: 4,
   },
   buttonText: {
-    color: "#ffffff",
+    color: "#020617",
     fontWeight: "600",
   },
   recipesButton: {
     marginTop: 12,
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingVertical: 12,
+    borderRadius: 999,
     alignItems: "center",
-    backgroundColor: "#10b981",
+    backgroundColor: "#111827",
+    borderWidth: 1,
+    borderColor: "#4b5563",
   },
   recipesButtonText: {
-    color: "#ffffff",
+    color: "#e5e7eb",
     fontWeight: "600",
   },
   deleteButton: {
     marginTop: 12,
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingVertical: 12,
+    borderRadius: 999,
     alignItems: "center",
     backgroundColor: "#dc2626",
   },
