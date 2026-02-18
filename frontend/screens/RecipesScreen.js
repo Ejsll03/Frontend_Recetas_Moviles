@@ -20,6 +20,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen }) {
   const [recipes, setRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null); // null = creando
+  const [favoriteIds, setFavoriteIds] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -57,6 +58,23 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
 
   useEffect(() => {
     loadRecipes();
+    // Cargar favoritos del backend al iniciar
+    const loadFavorites = async () => {
+      try {
+        const res = await fetch(`${apiUrl}/recipes/favorites`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (res.ok && Array.isArray(data)) {
+          setFavoriteIds(data.map((r) => r._id));
+        }
+      } catch (error) {
+        console.warn("Error cargando favoritos", error);
+      }
+    };
+
+    loadFavorites();
   }, []);
 
   const openCreateForm = () => {
@@ -98,6 +116,25 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
     setMode("detail");
     if (onDetailOpen) {
       onDetailOpen();
+    }
+  };
+
+  const toggleFavorite = async (recipeId) => {
+    try {
+      const res = await fetch(`${apiUrl}/recipes/${recipeId}/favorite`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) return;
+
+      setFavoriteIds((prev) =>
+        data.isFavorite
+          ? [...prev, recipeId]
+          : prev.filter((id) => id !== recipeId)
+      );
+    } catch (error) {
+      console.warn("Error alternando favorito", error);
     }
   };
 
@@ -416,6 +453,7 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
   }
 
   if (mode === "detail" && selectedRecipe) {
+    const isFavorite = favoriteIds.includes(selectedRecipe._id);
     return (
       <ScrollView
         style={styles.detailContainer}
@@ -430,7 +468,21 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.detailTitle}>{selectedRecipe.title}</Text>
+          <View style={styles.detailTitleRow}>
+            <TouchableOpacity
+              style={styles.favoriteButton}
+              onPress={() => toggleFavorite(selectedRecipe._id)}
+              activeOpacity={0.8}
+            >
+              <MaterialIcons
+                name={isFavorite ? "favorite" : "favorite-border"}
+                size={22}
+                color={isFavorite ? "#ef4444" : "#f9fafb"}
+              />
+            </TouchableOpacity>
+            <Text style={styles.detailTitle}>{selectedRecipe.title}</Text>
+            <View style={styles.detailTitleSpacer} />
+          </View>
           {!!selectedRecipe.description && (
             <Text style={styles.detailSubtitle}>{selectedRecipe.description}</Text>
           )}
@@ -717,12 +769,31 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  favoriteButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(15,23,42,0.9)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+  },
+  detailTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "stretch",
+    justifyContent: "space-between",
+  },
   detailTitle: {
     fontSize: 22,
     fontWeight: "700",
     color: "#f9fafb",
     marginBottom: 4,
     textAlign: "center",
+    flex: 1,
+  },
+  detailTitleSpacer: {
+    width: 32,
   },
   detailSubtitle: {
     fontSize: 14,

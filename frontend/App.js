@@ -158,7 +158,7 @@ export default function App() {
         />
       )}
       {currentScreen === "favorites" && (
-        <FavoritesScreen />
+        <FavoritesScreen apiUrl={API_URL} setLoading={setLoading} />
       )}
       {currentScreen === "public" && (
         <PublicRecipesScreen

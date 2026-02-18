@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, Image } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export default function PublicRecipesScreen({ apiUrl, setLoading, onDetailOpen }) {
   const [recipes, setRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [mode, setMode] = useState("list"); // list | detail
+  const [favoriteIds, setFavoriteIds] = useState([]);
 
   useEffect(() => {
     const loadPublicRecipes = async () => {
@@ -25,13 +27,48 @@ export default function PublicRecipesScreen({ apiUrl, setLoading, onDetailOpen }
       }
     };
 
+    const loadFavorites = async () => {
+      try {
+        const res = await fetch(`${apiUrl}/recipes/favorites`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (res.ok && Array.isArray(data)) {
+          setFavoriteIds(data.map((r) => r._id));
+        }
+      } catch (error) {
+        console.warn("Error cargando favoritos", error);
+      }
+    };
+
     loadPublicRecipes();
+    loadFavorites();
   }, [apiUrl, setLoading]);
   const openDetail = (recipe) => {
     setSelectedRecipe(recipe);
     setMode("detail");
     if (onDetailOpen) {
       onDetailOpen();
+    }
+  };
+
+  const toggleFavorite = async (recipeId) => {
+    try {
+      const res = await fetch(`${apiUrl}/recipes/${recipeId}/favorite`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) return;
+
+      setFavoriteIds((prev) =>
+        data.isFavorite
+          ? [...prev, recipeId]
+          : prev.filter((id) => id !== recipeId)
+      );
+    } catch (error) {
+      console.warn("Error alternando favorito", error);
     }
   };
 
@@ -54,6 +91,7 @@ export default function PublicRecipesScreen({ apiUrl, setLoading, onDetailOpen }
   );
 
   if (mode === "detail" && selectedRecipe) {
+    const isFavorite = favoriteIds.includes(selectedRecipe._id);
     return (
       <ScrollView
         style={styles.detailContainer}
@@ -68,7 +106,21 @@ export default function PublicRecipesScreen({ apiUrl, setLoading, onDetailOpen }
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.detailTitle}>{selectedRecipe.title}</Text>
+          <View style={styles.detailTitleRow}>
+            <TouchableOpacity
+              style={styles.favoriteButton}
+              onPress={() => toggleFavorite(selectedRecipe._id)}
+              activeOpacity={0.8}
+            >
+              <MaterialIcons
+                name={isFavorite ? "favorite" : "favorite-border"}
+                size={22}
+                color={isFavorite ? "#ef4444" : "#f9fafb"}
+              />
+            </TouchableOpacity>
+            <Text style={styles.detailTitle}>{selectedRecipe.title}</Text>
+            <View style={styles.detailTitleSpacer} />
+          </View>
           {selectedRecipe.user?.username && (
             <Text style={styles.detailAuthor}>por {selectedRecipe.user.username}</Text>
           )}
@@ -207,12 +259,31 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  favoriteButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(15,23,42,0.9)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+  },
+  detailTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "stretch",
+    justifyContent: "space-between",
+  },
   detailTitle: {
     fontSize: 22,
     fontWeight: "700",
     color: "#f9fafb",
     marginBottom: 4,
     textAlign: "center",
+    flex: 1,
+  },
+  detailTitleSpacer: {
+    width: 32,
   },
   detailAuthor: {
     fontSize: 13,
