@@ -16,7 +16,7 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState("login"); // login | register | profile | recipes | favorites | public | groups
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
-  const [currentTab, setCurrentTab] = useState("recipes"); // recipes | favorites | public | groups
+  const [currentTab, setCurrentTab] = useState("recipes"); // recipes | favorites | public | groups | profile
 
   // Al iniciar la app, verificar si ya hay sesión activa
   useEffect(() => {
@@ -71,12 +71,9 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
-      {/* Header simple con botón de perfil cuando el usuario está autenticado */}
+      {/* Header superior solo con botón de logout cuando hay sesión */}
       {user && currentScreen !== "login" && currentScreen !== "register" && (
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => setCurrentScreen("profile")} style={styles.profileButton}>
-            <MaterialIcons name="person-outline" size={22} color="#e5e7eb" />
-          </TouchableOpacity>
           <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
             <MaterialIcons name="logout" size={22} color="#e5e7eb" />
           </TouchableOpacity>
@@ -126,6 +123,15 @@ export default function App() {
           }}
         />
       )}
+      {currentScreen === "favorites" && (
+        <FavoritesScreen />
+      )}
+      {currentScreen === "public" && (
+        <PublicRecipesScreen apiUrl={API_URL} setLoading={setLoading} />
+      )}
+      {currentScreen === "groups" && (
+        <RecipeGroupsScreen />
+      )}
       {currentScreen === "recipes" && (
         <RecipesScreen
           apiUrl={API_URL}
@@ -133,12 +139,6 @@ export default function App() {
           onBack={() => setCurrentScreen("profile")}
         />
       )}
-      {currentScreen === "favorites" && <FavoritesScreen />}
-      {currentScreen === "public" && (
-        <PublicRecipesScreen apiUrl={API_URL} setLoading={setLoading} />
-      )}
-      {currentScreen === "groups" && <RecipeGroupsScreen />}
-
       {user && currentScreen !== "login" && currentScreen !== "register" && (
         <View style={styles.tabBarContainer}>
           <View style={styles.tabBar}>
@@ -243,6 +243,31 @@ export default function App() {
                 Grupos
               </Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.tabItem,
+                currentTab === "profile" && styles.tabItemActive,
+              ]}
+              onPress={() => {
+                setCurrentScreen("profile");
+                setCurrentTab("profile");
+              }}
+            >
+              <MaterialIcons
+                name="person-outline"
+                size={22}
+                color={currentTab === "profile" ? "#f97316" : "#6b7280"}
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  currentTab === "profile" && styles.tabLabelActive,
+                ]}
+              >
+                Perfil
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
@@ -261,7 +286,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     backgroundColor: "#020617",
   },
   headerButtonText: {

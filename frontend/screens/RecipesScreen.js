@@ -15,6 +15,7 @@ import {
   Keyboard,
   Image,
 } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export default function RecipesScreen({ apiUrl, setLoading, onBack }) {
   const [recipes, setRecipes] = useState([]);
@@ -31,7 +32,7 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack }) {
     comentarios: "",
     publico: false,
   });
-  const [mode, setMode] = useState("list"); // list | form
+  const [mode, setMode] = useState("list"); // list | form | detail
 
   const loadRecipes = async () => {
     try {
@@ -90,6 +91,11 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack }) {
       publico: !!recipe.publico,
     });
     setMode("form");
+  };
+
+  const openDetail = (recipe) => {
+    setSelectedRecipe(recipe);
+    setMode("detail");
   };
 
   const addIngrediente = () => {
@@ -406,6 +412,72 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack }) {
     );
   }
 
+  if (mode === "detail" && selectedRecipe) {
+    return (
+      <ScrollView
+        style={styles.detailContainer}
+        contentContainerStyle={styles.detailContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.detailHeroCard}>
+          <View style={styles.detailImageWrapper}>
+            <Image
+              source={require("../assets/splash-icon.png")}
+              style={styles.detailImage}
+              resizeMode="contain"
+            />
+          </View>
+          <Text style={styles.detailTitle}>{selectedRecipe.title}</Text>
+          {!!selectedRecipe.description && (
+            <Text style={styles.detailSubtitle}>{selectedRecipe.description}</Text>
+          )}
+        </View>
+
+        <View style={styles.detailSection}>
+          <Text style={styles.detailSectionTitle}>Ingredientes</Text>
+          {selectedRecipe.ingredientes && selectedRecipe.ingredientes.length ? (
+            selectedRecipe.ingredientes.map((ing, index) => (
+              <Text key={`${ing}-${index}`} style={styles.detailItemText}>
+                {index + 1}. {ing}
+              </Text>
+            ))
+          ) : (
+            <Text style={styles.detailEmptyText}>Sin ingredientes</Text>
+          )}
+        </View>
+
+        <View style={styles.detailSection}>
+          <Text style={styles.detailSectionTitle}>Pasos</Text>
+          {selectedRecipe.pasos && selectedRecipe.pasos.length ? (
+            selectedRecipe.pasos.map((step, index) => (
+              <Text key={`${step}-${index}`} style={styles.detailItemText}>
+                {index + 1}. {step}
+              </Text>
+            ))
+          ) : (
+            <Text style={styles.detailEmptyText}>Sin pasos</Text>
+          )}
+        </View>
+
+        {!!selectedRecipe.comentarios && (
+          <View style={styles.detailSection}>
+            <Text style={styles.detailSectionTitle}>Comentarios</Text>
+            <Text style={styles.detailItemText}>{selectedRecipe.comentarios}</Text>
+          </View>
+        )}
+
+        <View style={styles.detailFooter}>
+          <TouchableOpacity
+            style={styles.detailPrimaryButton}
+            onPress={() => setMode("list")}
+          >
+            <Text style={styles.buttonText}>Volver a mis recetas</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mis recetas</Text>
@@ -419,7 +491,11 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack }) {
         data={recipes}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <TouchableOpacity
+            style={styles.card}
+            activeOpacity={0.9}
+            onPress={() => openDetail(item)}
+          >
             <View style={{ flex: 1 }}>
               <Text style={styles.cardTitle}>{item.title}</Text>
               {!!item.description && (
@@ -433,19 +509,19 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack }) {
             </View>
             <View style={styles.cardButtons}>
               <TouchableOpacity
-                style={styles.smallButton}
+                style={styles.iconButton}
                 onPress={() => openEditForm(item)}
               >
-                <Text style={styles.smallButtonText}>Editar</Text>
+                <MaterialIcons name="edit" size={20} color="#f9fafb" />
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.smallButton, styles.smallDeleteButton]}
+                style={styles.iconButtonDelete}
                 onPress={() => handleDelete(item)}
               >
-                <Text style={styles.smallButtonText}>Borrar</Text>
+                <MaterialIcons name="delete" size={20} color="#f9fafb" />
               </TouchableOpacity>
             </View>
-          </View>
+          </TouchableOpacity>
         )}
         ListEmptyComponent={
           <Text style={styles.emptyText}>
@@ -482,7 +558,7 @@ const styles = StyleSheet.create({
     color: "#f9fafb",
   },
   button: {
-    backgroundColor: "#f97316",
+    backgroundColor: "#fa8c3e",
     paddingVertical: 14,
     borderRadius: 999,
     alignItems: "center",
@@ -494,7 +570,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   formPrimaryButton: {
-    backgroundColor: "#f97316",
+    backgroundColor: "#fa8c3e",
     paddingVertical: 16,
     borderRadius: 999,
     alignItems: "center",
@@ -547,24 +623,30 @@ const styles = StyleSheet.create({
     color: "#2563eb",
   },
   cardButtons: {
-    justifyContent: "space-between",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
     marginLeft: 8,
   },
-  smallButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
+  iconButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: "#020617",
-    marginBottom: 4,
     borderWidth: 1,
     borderColor: "#4b5563",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 4,
   },
-  smallDeleteButton: {
+  iconButtonDelete: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: "#dc2626",
-  },
-  smallButtonText: {
-    color: "#ffffff",
-    fontSize: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 8,
   },
   input: {
     height: 44,
@@ -609,10 +691,77 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#f97316",
+    backgroundColor: "#fa8c3e",
     alignItems: "center",
     justifyContent: "center",
     marginTop: -10,
+  },
+  detailContainer: {
+    flex: 1,
+    backgroundColor: "#020617",
+    paddingHorizontal: 16,
+    paddingTop: 24,
+  },
+  detailContent: {
+    paddingBottom: 32,
+  },
+  detailHeroCard: {
+    backgroundColor: "#0d9488",
+    borderRadius: 24,
+    padding: 16,
+    marginBottom: 24,
+    alignItems: "center",
+  },
+  detailImageWrapper: {
+    width: "100%",
+    height: 180,
+    borderRadius: 16,
+    overflow: "hidden",
+    marginBottom: 16,
+  },
+  detailImage: {
+    width: "100%",
+    height: "100%",
+  },
+  detailTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#f9fafb",
+    marginBottom: 4,
+    textAlign: "center",
+  },
+  detailSubtitle: {
+    fontSize: 14,
+    color: "#e5e7eb",
+    textAlign: "center",
+  },
+  detailSection: {
+    marginBottom: 16,
+  },
+  detailSectionTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#f9fafb",
+    marginBottom: 4,
+  },
+  detailItemText: {
+    fontSize: 13,
+    color: "#e5e7eb",
+    marginBottom: 2,
+  },
+  detailEmptyText: {
+    fontSize: 13,
+    color: "#6b7280",
+  },
+  detailFooter: {
+    marginTop: 16,
+  },
+  detailPrimaryButton: {
+    backgroundColor: "#fa8c3e",
+    paddingVertical: 14,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
   },
   ingredientRow: {
     flexDirection: "row",
