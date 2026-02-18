@@ -17,7 +17,7 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-export default function RecipesScreen({ apiUrl, setLoading, onBack }) {
+export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen }) {
   const [recipes, setRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null); // null = creando
   const [formData, setFormData] = useState({
@@ -96,6 +96,9 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack }) {
   const openDetail = (recipe) => {
     setSelectedRecipe(recipe);
     setMode("detail");
+    if (onDetailOpen) {
+      onDetailOpen();
+    }
   };
 
   const addIngrediente = () => {
@@ -465,15 +468,6 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack }) {
             <Text style={styles.detailItemText}>{selectedRecipe.comentarios}</Text>
           </View>
         )}
-
-        <View style={styles.detailFooter}>
-          <TouchableOpacity
-            style={styles.detailPrimaryButton}
-            onPress={() => setMode("list")}
-          >
-            <Text style={styles.buttonText}>Volver a mis recetas</Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
     );
   }
@@ -700,7 +694,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#020617",
     paddingHorizontal: 16,
-    paddingTop: 24,
+    paddingTop: 8,
   },
   detailContent: {
     paddingBottom: 32,

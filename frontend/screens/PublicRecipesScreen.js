@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, Image } from "react-native";
 
-export default function PublicRecipesScreen({ apiUrl, setLoading }) {
+export default function PublicRecipesScreen({ apiUrl, setLoading, onDetailOpen }) {
   const [recipes, setRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [mode, setMode] = useState("list"); // list | detail
@@ -30,6 +30,9 @@ export default function PublicRecipesScreen({ apiUrl, setLoading }) {
   const openDetail = (recipe) => {
     setSelectedRecipe(recipe);
     setMode("detail");
+    if (onDetailOpen) {
+      onDetailOpen();
+    }
   };
 
   const renderItem = ({ item }) => (
@@ -106,18 +109,6 @@ export default function PublicRecipesScreen({ apiUrl, setLoading }) {
             <Text style={styles.detailItemText}>{selectedRecipe.comentarios}</Text>
           </View>
         )}
-
-        <View style={styles.detailFooter}>
-          <TouchableOpacity
-            style={styles.detailPrimaryButton}
-            onPress={() => {
-              setMode("list");
-              setSelectedRecipe(null);
-            }}
-          >
-            <Text style={styles.detailPrimaryButtonText}>Volver a públicas</Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
     );
   }
@@ -193,7 +184,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#020617",
     paddingHorizontal: 16,
-    paddingTop: 24,
+    paddingTop: 8,
   },
   detailContent: {
     paddingBottom: 32,

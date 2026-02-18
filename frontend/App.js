@@ -17,6 +17,10 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [currentTab, setCurrentTab] = useState("recipes"); // recipes | favorites | public | groups | profile
+  const [recipesViewVersion, setRecipesViewVersion] = useState(0);
+  const [publicViewVersion, setPublicViewVersion] = useState(0);
+  const [recipesDetailOpen, setRecipesDetailOpen] = useState(false);
+  const [publicDetailOpen, setPublicDetailOpen] = useState(false);
 
   // Al iniciar la app, verificar si ya hay sesión activa
   useEffect(() => {
@@ -40,6 +44,8 @@ export default function App() {
             setUser(profileDataJson.user);
             setCurrentScreen("recipes");
             setCurrentTab("recipes");
+            setRecipesDetailOpen(false);
+            setPublicDetailOpen(false);
           }
         }
       } catch (error) {
@@ -64,19 +70,47 @@ export default function App() {
     } finally {
       setUser(null);
       setCurrentScreen("login");
+      setRecipesDetailOpen(false);
+      setPublicDetailOpen(false);
       setLoading(false);
     }
   };
 
+  const handleHeaderBack = () => {
+    if (currentScreen === "recipes") {
+      setRecipesViewVersion((v) => v + 1);
+      setRecipesDetailOpen(false);
+    } else if (currentScreen === "public") {
+      setPublicViewVersion((v) => v + 1);
+      setPublicDetailOpen(false);
+    }
+  };
+
+  const showBackButton =
+    (currentScreen === "recipes" && recipesDetailOpen) ||
+    (currentScreen === "public" && publicDetailOpen);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
-      {/* Header superior solo con botón de logout cuando hay sesión */}
+      {/* Header superior con botón de volver (si aplica) y logout cuando hay sesión */}
       {user && currentScreen !== "login" && currentScreen !== "register" && (
         <View style={styles.header}>
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <MaterialIcons name="logout" size={22} color="#e5e7eb" />
-          </TouchableOpacity>
+          <View style={styles.headerSide}>
+            {showBackButton && (
+              <TouchableOpacity
+                onPress={handleHeaderBack}
+                style={styles.logoutButton}
+              >
+                <MaterialIcons name="arrow-back" size={22} color="#e5e7eb" />
+              </TouchableOpacity>
+            )}
+          </View>
+          <View style={styles.headerSideRight}>
+            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+              <MaterialIcons name="logout" size={22} color="#e5e7eb" />
+            </TouchableOpacity>
+          </View>
         </View>
       )}
       {loading && (
@@ -127,16 +161,23 @@ export default function App() {
         <FavoritesScreen />
       )}
       {currentScreen === "public" && (
-        <PublicRecipesScreen apiUrl={API_URL} setLoading={setLoading} />
+        <PublicRecipesScreen
+          key={publicViewVersion}
+          apiUrl={API_URL}
+          setLoading={setLoading}
+          onDetailOpen={() => setPublicDetailOpen(true)}
+        />
       )}
       {currentScreen === "groups" && (
         <RecipeGroupsScreen />
       )}
       {currentScreen === "recipes" && (
         <RecipesScreen
+          key={recipesViewVersion}
           apiUrl={API_URL}
           setLoading={setLoading}
           onBack={() => setCurrentScreen("profile")}
+          onDetailOpen={() => setRecipesDetailOpen(true)}
         />
       )}
       {user && currentScreen !== "login" && currentScreen !== "register" && (
@@ -286,8 +327,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     backgroundColor: "#020617",
+  },
+  headerSide: {
+    minWidth: 36,
+    alignItems: "flex-start",
+  },
+  headerSideRight: {
+    minWidth: 36,
+    alignItems: "flex-end",
   },
   headerButtonText: {
     color: "#e5e7eb",
@@ -346,10 +395,12 @@ const styles = StyleSheet.create({
     borderColor: "#4b5563",
   },
   logoutButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: "#4b5563",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
