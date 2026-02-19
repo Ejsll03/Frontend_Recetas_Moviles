@@ -1,6 +1,15 @@
-import { StatusBar } from "expo-status-bar";
+import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, SafeAreaView, StyleSheet, View, TouchableOpacity, Text } from "react-native";
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Text,
+  Platform,
+  StatusBar as RNStatusBar,
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
@@ -12,6 +21,9 @@ import RecipeGroupsScreen from "./screens/RecipeGroupsScreen";
 
 const API_URL = "http://192.168.0.138:5000"; // Cambia a la URL de tu backend si usas dispositivo físico
 
+const IS_ANDROID = Platform.OS === "android";
+const ANDROID_STATUSBAR_HEIGHT = IS_ANDROID ? RNStatusBar.currentHeight || 0 : 0;
+
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState("login"); // login | register | profile | recipes | favorites | public | groups
   const [loading, setLoading] = useState(false);
@@ -19,8 +31,10 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState("recipes"); // recipes | favorites | public | groups | profile
   const [recipesViewVersion, setRecipesViewVersion] = useState(0);
   const [publicViewVersion, setPublicViewVersion] = useState(0);
+  const [favoritesViewVersion, setFavoritesViewVersion] = useState(0);
   const [recipesDetailOpen, setRecipesDetailOpen] = useState(false);
   const [publicDetailOpen, setPublicDetailOpen] = useState(false);
+  const [favoritesDetailOpen, setFavoritesDetailOpen] = useState(false);
 
   // Al iniciar la app, verificar si ya hay sesión activa
   useEffect(() => {
@@ -72,6 +86,7 @@ export default function App() {
       setCurrentScreen("login");
       setRecipesDetailOpen(false);
       setPublicDetailOpen(false);
+      setFavoritesDetailOpen(false);
       setLoading(false);
     }
   };
@@ -83,16 +98,20 @@ export default function App() {
     } else if (currentScreen === "public") {
       setPublicViewVersion((v) => v + 1);
       setPublicDetailOpen(false);
+    } else if (currentScreen === "favorites") {
+      setFavoritesViewVersion((v) => v + 1);
+      setFavoritesDetailOpen(false);
     }
   };
 
   const showBackButton =
     (currentScreen === "recipes" && recipesDetailOpen) ||
-    (currentScreen === "public" && publicDetailOpen);
+    (currentScreen === "public" && publicDetailOpen) ||
+    (currentScreen === "favorites" && favoritesDetailOpen);
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
+      <ExpoStatusBar style="light" />
       {/* Header superior con botón de volver (si aplica) y logout cuando hay sesión */}
       {user && currentScreen !== "login" && currentScreen !== "register" && (
         <View style={styles.header}>
@@ -158,7 +177,12 @@ export default function App() {
         />
       )}
       {currentScreen === "favorites" && (
-        <FavoritesScreen apiUrl={API_URL} setLoading={setLoading} />
+        <FavoritesScreen
+          key={favoritesViewVersion}
+          apiUrl={API_URL}
+          setLoading={setLoading}
+          onDetailOpen={() => setFavoritesDetailOpen(true)}
+        />
       )}
       {currentScreen === "public" && (
         <PublicRecipesScreen
@@ -321,6 +345,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#020617",
     justifyContent: "flex-start",
+    paddingTop: IS_ANDROID ? ANDROID_STATUSBAR_HEIGHT : 0,
   },
   header: {
     paddingHorizontal: 16,
@@ -354,9 +379,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    bottom: 0,
+    bottom: IS_ANDROID ? 10 : 0,
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingBottom: IS_ANDROID ? 12 : 24,
     paddingTop: 4,
     backgroundColor: "transparent",
   },
