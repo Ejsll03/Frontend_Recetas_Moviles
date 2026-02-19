@@ -7,6 +7,11 @@ import {
   TouchableOpacity,
   View,
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 
 export default function LoginScreen({
@@ -52,50 +57,60 @@ export default function LoginScreen({
   };
 
   return (
-    <View style={styles.screen}>
-      <Image
-        source={require("../assets/splash-icon.png")}
-        style={styles.heroImage}
-        resizeMode="cover"
-      />
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Image
+            source={require("../assets/splash-icon.png")}
+            style={styles.heroImage}
+            resizeMode="cover"
+          />
 
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Bienvenido de nuevo</Text>
-        <Text style={styles.subtitle}>
-          Tus recetas favoritas en un solo lugar
-        </Text>
+          <View style={styles.formContainer}>
+            <Text style={styles.title}>Bienvenido de nuevo</Text>
+            <Text style={styles.subtitle}>
+              Tus recetas favoritas en un solo lugar
+            </Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Usuario"
-          placeholderTextColor="#9ca3af"
-          autoCapitalize="none"
-          value={loginData.username}
-          onChangeText={(text) =>
-            setLoginData({ ...loginData, username: text })
-          }
-        />
+            <TextInput
+              style={styles.input}
+              placeholder="Usuario"
+              placeholderTextColor="#9ca3af"
+              autoCapitalize="none"
+              value={loginData.username}
+              onChangeText={(text) =>
+                setLoginData({ ...loginData, username: text })
+              }
+            />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Contraseña"
-          placeholderTextColor="#9ca3af"
-          secureTextEntry
-          value={loginData.password}
-          onChangeText={(text) =>
-            setLoginData({ ...loginData, password: text })
-          }
-        />
+            <TextInput
+              style={styles.input}
+              placeholder="Contraseña"
+              placeholderTextColor="#9ca3af"
+              secureTextEntry
+              value={loginData.password}
+              onChangeText={(text) =>
+                setLoginData({ ...loginData, password: text })
+              }
+            />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>LOGIN</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <Text style={styles.buttonText}>LOGIN</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity onPress={goToRegister}>
-          <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+            <TouchableOpacity onPress={goToRegister}>
+              <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -103,6 +118,11 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: "#020617",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    backgroundColor: "#020617",
+    paddingBottom: 24,
   },
   heroImage: {
     width: "100%",

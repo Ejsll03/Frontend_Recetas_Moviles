@@ -277,9 +277,10 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
           style={styles.container}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
           <ScrollView
+            style={styles.formScroll}
             contentContainerStyle={styles.formContent}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
@@ -707,8 +708,12 @@ const styles = StyleSheet.create({
     minHeight: 70,
     textAlignVertical: "top",
   },
+  formScroll: {
+    flex: 1,
+  },
   formContent: {
-    paddingBottom: 140,
+    flexGrow: 1,
+    paddingBottom: 220,
   },
   label: {
     fontSize: 12,

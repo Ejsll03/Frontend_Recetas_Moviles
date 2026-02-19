@@ -7,6 +7,11 @@ import {
   TouchableOpacity,
   View,
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 
 export default function ProfileScreen({
@@ -121,75 +126,95 @@ export default function ProfileScreen({
   };
 
   return (
-    <View style={styles.screen}>
-      <Image
-        source={require("../assets/splash-icon.png")}
-        style={styles.heroImage}
-        resizeMode="cover"
-      />
-
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Tu perfil</Text>
-        {user && (
-          <Text style={styles.subtitle}>@{user.username}</Text>
-        )}
-
-        <TextInput
-          style={styles.input}
-          placeholder="Usuario"
-          placeholderTextColor="#6b7280"
-          autoCapitalize="none"
-          value={profileData.username}
-          onChangeText={(text) =>
-            setProfileData({ ...profileData, username: text })
-          }
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Correo"
-          placeholderTextColor="#6b7280"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={profileData.email}
-          onChangeText={(text) =>
-            setProfileData({ ...profileData, email: text })
-          }
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Nueva contraseña (opcional)"
-          placeholderTextColor="#6b7280"
-          secureTextEntry
-          value={profileData.password}
-          onChangeText={(text) =>
-            setProfileData({ ...profileData, password: text })
-          }
-        />
-
-        <TouchableOpacity style={styles.button} onPress={handleUpdateProfile}>
-          <Text style={styles.buttonText}>Guardar cambios</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.recipesButton} onPress={onGoToRecipes}>
-          <Text style={styles.recipesButtonText}>Mis recetas</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={handleDeleteAccount}
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.deleteButtonText}>Eliminar cuenta</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+          <Image
+            source={require("../assets/splash-icon.png")}
+            style={styles.heroImage}
+            resizeMode="cover"
+          />
+
+          <View style={styles.formContainer}>
+            <Text style={styles.title}>Tu perfil</Text>
+            {user && (
+              <Text style={styles.subtitle}>@{user.username}</Text>
+            )}
+
+            <TextInput
+              style={styles.input}
+              placeholder="Usuario"
+              placeholderTextColor="#6b7280"
+              autoCapitalize="none"
+              value={profileData.username}
+              onChangeText={(text) =>
+                setProfileData({ ...profileData, username: text })
+              }
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Correo"
+              placeholderTextColor="#6b7280"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              value={profileData.email}
+              onChangeText={(text) =>
+                setProfileData({ ...profileData, email: text })
+              }
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Nueva contraseña (opcional)"
+              placeholderTextColor="#6b7280"
+              secureTextEntry
+              value={profileData.password}
+              onChangeText={(text) =>
+                setProfileData({ ...profileData, password: text })
+              }
+            />
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleUpdateProfile}
+            >
+              <Text style={styles.buttonText}>Guardar cambios</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.recipesButton}
+              onPress={onGoToRecipes}
+            >
+              <Text style={styles.recipesButtonText}>Mis recetas</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={handleDeleteAccount}
+            >
+              <Text style={styles.deleteButtonText}>Eliminar cuenta</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: "#020617",
+  },
+  scrollContainer: {
+    flexGrow: 1,
     backgroundColor: "#020617",
   },
   heroImage: {
