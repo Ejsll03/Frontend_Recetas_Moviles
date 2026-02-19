@@ -26,8 +26,13 @@ export default function FavoritesScreen({ apiUrl, setLoading, onDetailOpen }) {
         });
         const data = await res.json();
         if (res.ok && Array.isArray(data)) {
-          setFavorites(data);
-          setFavoriteIds(data.map((r) => r._id));
+          const sorted = [...data].sort((a, b) => {
+            const ta = (a.title || "").toLowerCase();
+            const tb = (b.title || "").toLowerCase();
+            return ta.localeCompare(tb);
+          });
+          setFavorites(sorted);
+          setFavoriteIds(sorted.map((r) => r._id));
         }
       } catch (error) {
         console.warn("Error cargando favoritos", error);

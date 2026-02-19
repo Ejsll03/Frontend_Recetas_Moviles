@@ -18,7 +18,14 @@ export default function PublicRecipesScreen({ apiUrl, setLoading, onDetailOpen }
         });
         const data = await res.json();
         if (res.ok) {
-          setRecipes(data);
+          const sorted = Array.isArray(data)
+            ? [...data].sort((a, b) => {
+                const ta = (a.title || "").toLowerCase();
+                const tb = (b.title || "").toLowerCase();
+                return ta.localeCompare(tb);
+              })
+            : [];
+          setRecipes(sorted);
         }
       } catch (error) {
         console.error("Error cargando recetas públicas", error);

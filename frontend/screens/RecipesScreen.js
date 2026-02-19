@@ -47,7 +47,14 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
         Alert.alert("Error", data.error || "No se pudieron cargar las recetas");
         return;
       }
-      setRecipes(data);
+      const sorted = Array.isArray(data)
+        ? [...data].sort((a, b) => {
+            const ta = (a.title || "").toLowerCase();
+            const tb = (b.title || "").toLowerCase();
+            return ta.localeCompare(tb);
+          })
+        : [];
+      setRecipes(sorted);
     } catch (error) {
       console.error("Error cargando recetas", error);
       Alert.alert("Error", "No se pudo conectar con el servidor");
