@@ -122,14 +122,13 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     backgroundColor: "#020617",
-    paddingBottom: 24,
+    paddingBottom: 96,
   },
   heroImage: {
     width: "100%",
-    height: "45%",
+    height: 180,
   },
   formContainer: {
-    flex: 1,
     marginTop: -32,
     marginHorizontal: 16,
     padding: 24,

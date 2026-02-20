@@ -281,14 +281,13 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
   if (mode === "form") {
     const isEdit = !!selectedRecipe;
     return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
+      <KeyboardAvoidingView
+        style={styles.formScreen}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView
-            style={styles.formScroll}
-            contentContainerStyle={styles.formContent}
+            contentContainerStyle={styles.formScrollContainer}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
@@ -422,6 +421,7 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
               style={[styles.input, styles.textArea]}
               placeholder="Comentarios"
               multiline
+              scrollEnabled={false}
               value={formData.comentarios}
               onChangeText={(text) =>
                 setFormData({ ...formData, comentarios: text })
@@ -455,8 +455,8 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
               </TouchableOpacity>
             </View>
           </ScrollView>
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     );
   }
 
@@ -499,11 +499,22 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
         <View style={styles.detailSection}>
           <Text style={styles.detailSectionTitle}>Ingredientes</Text>
           {selectedRecipe.ingredientes && selectedRecipe.ingredientes.length ? (
-            selectedRecipe.ingredientes.map((ing, index) => (
-              <Text key={`${ing}-${index}`} style={styles.detailItemText}>
-                {index + 1}. {ing}
-              </Text>
-            ))
+            selectedRecipe.ingredientes.map((ing, index) => {
+              const hasCantidades = Array.isArray(selectedRecipe.cantidades);
+              const cantidad =
+                hasCantidades && selectedRecipe.cantidades[index]
+                  ? ` - ${selectedRecipe.cantidades[index]}`
+                  : "";
+              return (
+                <Text
+                  key={`${ing}-${index}`}
+                  style={styles.detailItemText}
+                >
+                  {index + 1}. {ing}
+                  {cantidad}
+                </Text>
+              );
+            })
           ) : (
             <Text style={styles.detailEmptyText}>Sin ingredientes</Text>
           )}
@@ -702,6 +713,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft: 8,
   },
+  formScreen: {
+    flex: 1,
+    backgroundColor: "#020617",
+  },
   input: {
     height: 44,
     borderWidth: 1,
@@ -715,12 +730,11 @@ const styles = StyleSheet.create({
     minHeight: 70,
     textAlignVertical: "top",
   },
-  formScroll: {
-    flex: 1,
-  },
-  formContent: {
+  formScrollContainer: {
     flexGrow: 1,
-    paddingBottom: 220,
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+    paddingBottom: 280,
   },
   label: {
     fontSize: 12,
@@ -761,7 +775,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   detailContent: {
-    paddingBottom: 32,
+    paddingBottom: 120,
   },
   detailHeroCard: {
     backgroundColor: "#0d9488",

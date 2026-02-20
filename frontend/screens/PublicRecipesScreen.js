@@ -139,11 +139,22 @@ export default function PublicRecipesScreen({ apiUrl, setLoading, onDetailOpen }
         <View style={styles.detailSection}>
           <Text style={styles.detailSectionTitle}>Ingredientes</Text>
           {selectedRecipe.ingredientes && selectedRecipe.ingredientes.length ? (
-            selectedRecipe.ingredientes.map((ing, index) => (
-              <Text key={`${ing}-${index}`} style={styles.detailItemText}>
-                {index + 1}. {ing}
-              </Text>
-            ))
+            selectedRecipe.ingredientes.map((ing, index) => {
+              const hasCantidades = Array.isArray(selectedRecipe.cantidades);
+              const cantidad =
+                hasCantidades && selectedRecipe.cantidades[index]
+                  ? ` - ${selectedRecipe.cantidades[index]}`
+                  : "";
+              return (
+                <Text
+                  key={`${ing}-${index}`}
+                  style={styles.detailItemText}
+                >
+                  {index + 1}. {ing}
+                  {cantidad}
+                </Text>
+              );
+            })
           ) : (
             <Text style={styles.detailEmptyText}>Sin ingredientes</Text>
           )}
@@ -246,7 +257,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   detailContent: {
-    paddingBottom: 32,
+    paddingBottom: 120,
   },
   detailHeroCard: {
     backgroundColor: "#0d9488",

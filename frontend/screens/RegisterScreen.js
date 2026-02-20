@@ -7,6 +7,11 @@ import {
   TouchableOpacity,
   View,
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 
 export default function RegisterScreen({ apiUrl, setLoading, goToLogin }) {
@@ -49,14 +54,22 @@ export default function RegisterScreen({ apiUrl, setLoading, goToLogin }) {
   };
 
   return (
-    <View style={styles.screen}>
-      <Image
-        source={require("../assets/splash-icon.png")}
-        style={styles.heroImage}
-        resizeMode="cover"
-      />
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Image
+            source={require("../assets/splash-icon.png")}
+            style={styles.heroImage}
+            resizeMode="cover"
+          />
 
-      <View style={styles.formContainer}>
+          <View style={styles.formContainer}>
         <Text style={styles.title}>Crear cuenta</Text>
         <Text style={styles.subtitle}>
           Empieza a guardar tus propias recetas
@@ -96,15 +109,17 @@ export default function RegisterScreen({ apiUrl, setLoading, goToLogin }) {
           }
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>CREAR CUENTA</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleRegister}>
+              <Text style={styles.buttonText}>CREAR CUENTA</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity onPress={goToLogin}>
-          <Text style={styles.linkText}>¿Ya tienes cuenta? Inicia sesión</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+            <TouchableOpacity onPress={goToLogin}>
+              <Text style={styles.linkText}>¿Ya tienes cuenta? Inicia sesión</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -113,12 +128,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#020617",
   },
+  scrollContainer: {
+    flexGrow: 1,
+    backgroundColor: "#020617",
+    paddingBottom: 96,
+  },
   heroImage: {
     width: "100%",
-    height: "40%",
+    height: 180,
   },
   formContainer: {
-    flex: 1,
     marginTop: -24,
     marginHorizontal: 16,
     padding: 24,

@@ -189,13 +189,6 @@ export default function ProfileScreen({
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.recipesButton}
-              onPress={onGoToRecipes}
-            >
-              <Text style={styles.recipesButtonText}>Mis recetas</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
               style={styles.deleteButton}
               onPress={handleDeleteAccount}
             >
@@ -216,13 +209,13 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     backgroundColor: "#020617",
+    paddingBottom: 96,
   },
   heroImage: {
     width: "100%",
-    height: "35%",
+    height: 180,
   },
   formContainer: {
-    flex: 1,
     marginTop: -24,
     marginHorizontal: 16,
     padding: 24,
