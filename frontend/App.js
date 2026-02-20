@@ -213,6 +213,9 @@ export default function App() {
                 currentTab === "favorites" && styles.tabItemActive,
               ]}
               onPress={() => {
+                setRecipesDetailOpen(false);
+                setPublicDetailOpen(false);
+                setFavoritesDetailOpen(false);
                 setCurrentScreen("favorites");
                 setCurrentTab("favorites");
               }}
@@ -240,6 +243,9 @@ export default function App() {
                 currentTab === "recipes" && styles.tabItemActive,
               ]}
               onPress={() => {
+                setRecipesDetailOpen(false);
+                setPublicDetailOpen(false);
+                setFavoritesDetailOpen(false);
                 setCurrentScreen("recipes");
                 setCurrentTab("recipes");
               }}
@@ -265,6 +271,9 @@ export default function App() {
                 currentTab === "public" && styles.tabItemActive,
               ]}
               onPress={() => {
+                setRecipesDetailOpen(false);
+                setPublicDetailOpen(false);
+                setFavoritesDetailOpen(false);
                 setCurrentScreen("public");
                 setCurrentTab("public");
               }}
@@ -290,6 +299,9 @@ export default function App() {
                 currentTab === "groups" && styles.tabItemActive,
               ]}
               onPress={() => {
+                setRecipesDetailOpen(false);
+                setPublicDetailOpen(false);
+                setFavoritesDetailOpen(false);
                 setCurrentScreen("groups");
                 setCurrentTab("groups");
               }}
@@ -315,6 +327,9 @@ export default function App() {
                 currentTab === "profile" && styles.tabItemActive,
               ]}
               onPress={() => {
+                setRecipesDetailOpen(false);
+                setPublicDetailOpen(false);
+                setFavoritesDetailOpen(false);
                 setCurrentScreen("profile");
                 setCurrentTab("profile");
               }}
