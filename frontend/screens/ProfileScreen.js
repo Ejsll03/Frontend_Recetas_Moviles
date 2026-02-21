@@ -136,7 +136,7 @@ export default function ProfileScreen({
           keyboardShouldPersistTaps="handled"
         >
           <Image
-            source={require("../assets/splash-icon.png")}
+            source={require("../assets/login_asset.png")}
             style={styles.heroImage}
             resizeMode="cover"
           />
@@ -213,10 +213,10 @@ const styles = StyleSheet.create({
   },
   heroImage: {
     width: "100%",
-    height: 180,
+    height: 260,
   },
   formContainer: {
-    marginTop: -24,
+    marginTop: -20,
     marginHorizontal: 16,
     padding: 24,
     borderTopLeftRadius: 24,
