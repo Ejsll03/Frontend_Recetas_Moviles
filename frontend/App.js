@@ -19,7 +19,7 @@ import PublicRecipesScreen from "./screens/PublicRecipesScreen";
 import FavoritesScreen from "./screens/FavoritesScreen";
 import RecipeGroupsScreen from "./screens/RecipeGroupsScreen";
 
-const API_URL = "http://192.168.0.138:5000"; // Cambia a la URL de tu backend si usas dispositivo físico
+const API_URL = "http://192.168.0.152:5000"; // Cambia a la URL de tu backend si usas dispositivo físico
 
 const IS_ANDROID = Platform.OS === "android";
 const ANDROID_STATUSBAR_HEIGHT = IS_ANDROID ? RNStatusBar.currentHeight || 0 : 0;
@@ -112,7 +112,6 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <ExpoStatusBar style="light" />
-      {/* Header superior con botón de volver (si aplica) y logout cuando hay sesión */}
       {user && currentScreen !== "login" && currentScreen !== "register" && (
         <View style={styles.header}>
           <View style={styles.headerSide}>
@@ -193,7 +192,7 @@ export default function App() {
         />
       )}
       {currentScreen === "groups" && (
-        <RecipeGroupsScreen />
+        <RecipeGroupsScreen apiUrl={API_URL} />
       )}
       {currentScreen === "recipes" && (
         <RecipesScreen

@@ -13,7 +13,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 export default function FavoritesScreen({ apiUrl, setLoading, onDetailOpen }) {
   const [favorites, setFavorites] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [mode, setMode] = useState("list"); // list | detail
+  const [mode, setMode] = useState("list");
   const [favoriteIds, setFavoriteIds] = useState([]);
 
   useEffect(() => {
@@ -67,7 +67,6 @@ export default function FavoritesScreen({ apiUrl, setLoading, onDetailOpen }) {
           : prev.filter((id) => id !== recipeId)
       );
 
-      // Si se desmarca como favorito desde el detalle, quitarlo de la lista y volver a la vista de lista
       if (!data.isFavorite) {
         setFavorites((prev) => prev.filter((r) => r._id !== recipeId));
         setSelectedRecipe(null);

@@ -5,7 +5,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 export default function PublicRecipesScreen({ apiUrl, setLoading, onDetailOpen }) {
   const [recipes, setRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [mode, setMode] = useState("list"); // list | detail
+  const [mode, setMode] = useState("list");
   const [favoriteIds, setFavoriteIds] = useState([]);
 
   useEffect(() => {
