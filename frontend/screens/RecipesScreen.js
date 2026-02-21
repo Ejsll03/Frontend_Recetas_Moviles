@@ -18,6 +18,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 
 export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen }) {
   const [recipes, setRecipes] = useState([]);
@@ -40,6 +41,7 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
     newPaso: "",
     comentarios: "",
     publico: false,
+    image: null,
   });
   const [mode, setMode] = useState("list");
 
@@ -231,6 +233,7 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
       newPaso: "",
       comentarios: "",
       publico: false,
+      image: null,
     });
     setMode("form");
   };
@@ -248,8 +251,40 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
       newPaso: "",
       comentarios: recipe.comentarios || "",
       publico: !!recipe.publico,
+      image: recipe.image || null,
     });
     setMode("form");
+  };
+
+  const pickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permiso requerido",
+          "Necesitas dar permiso para acceder a tus fotos."
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.7,
+        base64: true,
+      });
+
+      if (result.canceled) return;
+
+      const asset = result.assets && result.assets[0];
+      if (asset && asset.base64) {
+        const base64Image = `data:image/jpeg;base64,${asset.base64}`;
+        setFormData({ ...formData, image: base64Image });
+      }
+    } catch (error) {
+      console.warn("Error seleccionando imagen", error);
+      Alert.alert("Error", "No se pudo seleccionar la imagen");
+    }
   };
 
   const openDetail = (recipe) => {
@@ -342,6 +377,7 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
         pasos: formData.pasos,
         comentarios: formData.comentarios,
         publico: formData.publico,
+        image: formData.image,
       };
 
       const isEdit = !!selectedRecipe;
@@ -427,11 +463,24 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
           >
             <View style={styles.heroWrapper}>
               <Image
-                source={require("../assets/splash-icon.png")}
+                source={
+                  formData.image
+                    ? { uri: formData.image }
+                    : require("../assets/splash-icon.png")
+                }
                 style={styles.heroImage}
                 resizeMode="cover"
               />
             </View>
+            <TouchableOpacity
+              style={styles.imageButton}
+              onPress={pickImage}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.imageButtonText}>
+                {formData.image ? "Cambiar imagen" : "Añadir imagen"}
+              </Text>
+            </TouchableOpacity>
             <Text style={styles.title}>
               {isEdit ? "Editar receta" : "Nueva receta"}
             </Text>
@@ -605,7 +654,11 @@ export default function RecipesScreen({ apiUrl, setLoading, onBack, onDetailOpen
         <View style={styles.detailHeroCard}>
           <View style={styles.detailImageWrapper}>
             <Image
-              source={require("../assets/splash-icon.png")}
+              source={
+                selectedRecipe.image
+                  ? { uri: selectedRecipe.image }
+                  : require("../assets/splash-icon.png")
+              }
               style={styles.detailImage}
               resizeMode="contain"
             />
@@ -854,6 +907,19 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: 16,
+  },
+  imageButton: {
+    alignSelf: "center",
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#4b5563",
+  },
+  imageButtonText: {
+    color: "#e5e7eb",
+    fontSize: 13,
   },
   title: {
     fontSize: 24,

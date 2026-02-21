@@ -64,9 +64,9 @@ export default function RegisterScreen({ apiUrl, setLoading, goToLogin }) {
           keyboardShouldPersistTaps="handled"
         >
           <Image
-            source={require("../assets/splash-icon.png")}
+            source={require("../assets/login_asset.png")}
             style={styles.heroImage}
-            resizeMode="cover"
+            resizeMode="contain"
           />
 
           <View style={styles.formContainer}>
@@ -134,11 +134,12 @@ const styles = StyleSheet.create({
     paddingBottom: 96,
   },
   heroImage: {
-    width: "100%",
-    height: 180,
+    width: "70%",
+    height: 140,
+    alignSelf: "center",
   },
   formContainer: {
-    marginTop: -24,
+    marginTop: -8,
     marginHorizontal: 16,
     padding: 24,
     borderTopLeftRadius: 24,

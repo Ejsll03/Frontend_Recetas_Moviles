@@ -106,7 +106,11 @@ export default function FavoritesScreen({ apiUrl, setLoading, onDetailOpen }) {
         <View style={styles.detailHeroCard}>
           <View style={styles.detailImageWrapper}>
             <Image
-              source={require("../assets/splash-icon.png")}
+              source={
+                selectedRecipe.image
+                  ? { uri: selectedRecipe.image }
+                  : require("../assets/splash-icon.png")
+              }
               style={styles.detailImage}
               resizeMode="contain"
             />

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
-  Button,
   Alert,
 } from "react-native";
 import axios from "axios";
@@ -296,8 +295,18 @@ const RecipeGroupsScreen = ({ apiUrl }) => {
               multiline
             />
             <View style={styles.modalActions}>
-              <Button title="Cancelar" onPress={() => setModalVisible(false)} />
-              <Button title="Guardar" onPress={handleSave} />
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonSecondary]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.modalButtonSecondaryText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonPrimary]}
+                onPress={handleSave}
+              >
+                <Text style={styles.modalButtonPrimaryText}>Guardar</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -356,10 +365,12 @@ const RecipeGroupsScreen = ({ apiUrl }) => {
               )}
             </View>
             <View style={styles.modalActions}>
-              <Button
-                title="Cerrar"
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonPrimary, { alignSelf: "center" }]}
                 onPress={() => setManageModalVisible(false)}
-              />
+              >
+                <Text style={styles.modalButtonPrimaryText}>Cerrar</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -382,14 +393,16 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   createButton: {
-    backgroundColor: "#1e40af",
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: "#fa8c3e",
+    paddingVertical: 12,
+    borderRadius: 999,
     alignItems: "center",
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#1f2937",
   },
   createButtonText: {
-    color: "#f9fafb",
+    color: "#111827",
     fontWeight: "600",
   },
   emptyContainer: {
@@ -402,10 +415,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   groupContainer: {
-    backgroundColor: "#1f2937",
+    backgroundColor: "#0b1120",
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#1f2937",
   },
   groupName: {
     fontSize: 18,
@@ -439,20 +454,22 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   actionText: {
-    color: "#3b82f6",
+    color: "#f97316",
     marginLeft: 16,
   },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(15,23,42,0.8)",
   },
   modalContent: {
-    backgroundColor: "#1f2937",
+    backgroundColor: "#020617",
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 16,
     width: "80%",
+    borderWidth: 1,
+    borderColor: "#1f2937",
   },
   modalHeader: {
     fontSize: 20,
@@ -461,15 +478,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    backgroundColor: "#374151",
+    backgroundColor: "#020617",
     color: "#f9fafb",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 10,
     marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#1f2937",
   },
   modalActions: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "flex-end",
+    marginTop: 8,
   },
   recipesSection: {
     maxHeight: 320,
@@ -497,13 +517,35 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   addText: {
-    color: "#3b82f6",
+    color: "#f97316",
     fontWeight: "600",
   },
   emptyTextSmall: {
     color: "#9ca3af",
     fontSize: 13,
     marginTop: 4,
+  },
+  modalButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 999,
+    marginLeft: 8,
+  },
+  modalButtonSecondary: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "#4b5563",
+  },
+  modalButtonSecondaryText: {
+    color: "#e5e7eb",
+    fontWeight: "500",
+  },
+  modalButtonPrimary: {
+    backgroundColor: "#f97316",
+  },
+  modalButtonPrimaryText: {
+    color: "#111827",
+    fontWeight: "600",
   },
 });
 
