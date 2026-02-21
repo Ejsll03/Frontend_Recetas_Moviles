@@ -19,6 +19,10 @@ const RecipeGroupsScreen = ({ apiUrl }) => {
   const [currentGroup, setCurrentGroup] = useState(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [manageModalVisible, setManageModalVisible] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [groupRecipes, setGroupRecipes] = useState([]);
+  const [availableRecipes, setAvailableRecipes] = useState([]);
 
   const fetchGroups = useCallback(async () => {
     try {
@@ -35,6 +39,28 @@ const RecipeGroupsScreen = ({ apiUrl }) => {
   useEffect(() => {
     fetchGroups();
   }, [fetchGroups]);
+
+  const openManageRecipes = async (group) => {
+    try {
+      setSelectedGroup(group);
+      const response = await axios.get(`${apiUrl}/recipes`, {
+        withCredentials: true,
+      });
+      const groupRecipeIds = (group.recipes || []).map((r) => r._id);
+      const available = response.data.filter(
+        (r) => !groupRecipeIds.includes(r._id)
+      );
+      setGroupRecipes(group.recipes || []);
+      setAvailableRecipes(available);
+      setManageModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching recipes for group:", error);
+      Alert.alert(
+        "Error",
+        "No se pudieron cargar las recetas para este grupo."
+      );
+    }
+  };
 
   const handleCreate = () => {
     setIsEditing(false);
@@ -70,6 +96,107 @@ const RecipeGroupsScreen = ({ apiUrl }) => {
         },
       },
     ]);
+  };
+
+  const handleRemoveRecipeFromGroup = (recipeId) => {
+    if (!selectedGroup) return;
+
+    Alert.alert(
+      "Confirmar",
+      "¿Estás seguro de que quieres quitar esta receta del grupo?",
+      [
+        { text: "Cancelar" },
+        {
+          text: "Quitar",
+          onPress: async () => {
+            try {
+              await axios.delete(
+                `${apiUrl}/api/recipe-groups/${selectedGroup._id}/recipes/${recipeId}`,
+                { withCredentials: true }
+              );
+
+              const removedRecipe = groupRecipes.find(
+                (r) => r._id === recipeId
+              );
+
+              setGroupRecipes((prev) =>
+                prev.filter((r) => r._id !== recipeId)
+              );
+
+              if (removedRecipe) {
+                setAvailableRecipes((prev) => {
+                  if (prev.some((p) => p._id === removedRecipe._id)) {
+                    return prev;
+                  }
+                  return [...prev, removedRecipe];
+                });
+              }
+
+              setGroups((prev) =>
+                prev.map((g) =>
+                  g._id === selectedGroup._id
+                    ? {
+                        ...g,
+                        recipes: (g.recipes || []).filter(
+                          (r) => r._id !== recipeId
+                        ),
+                      }
+                    : g
+                )
+              );
+            } catch (error) {
+              console.error("Error removing recipe from group:", error);
+              Alert.alert(
+                "Error",
+                "No se pudo quitar la receta del grupo."
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleAddRecipeToGroup = async (recipeId) => {
+    if (!selectedGroup) return;
+
+    try {
+      await axios.post(
+        `${apiUrl}/api/recipe-groups/${selectedGroup._id}/recipes`,
+        { recipeId },
+        { withCredentials: true }
+      );
+
+      const addedRecipe = availableRecipes.find((r) => r._id === recipeId);
+
+      if (addedRecipe) {
+        setGroupRecipes((prev) => [...prev, addedRecipe]);
+        setAvailableRecipes((prev) =>
+          prev.filter((r) => r._id !== recipeId)
+        );
+        setGroups((prev) =>
+          prev.map((g) =>
+            g._id === selectedGroup._id
+              ? {
+                  ...g,
+                  recipes: [
+                    ...(g.recipes || []),
+                    {
+                      _id: addedRecipe._id,
+                      title: addedRecipe.title,
+                    },
+                  ],
+                }
+              : g
+          )
+        );
+      } else {
+        fetchGroups();
+      }
+    } catch (error) {
+      console.error("Error adding recipe to group:", error);
+      Alert.alert("Error", "No se pudo añadir la receta al grupo.");
+    }
   };
 
   const handleSave = async () => {
@@ -114,6 +241,9 @@ const RecipeGroupsScreen = ({ apiUrl }) => {
         </View>
       )}
       <View style={styles.groupActions}>
+        <TouchableOpacity onPress={() => openManageRecipes(item)}>
+          <Text style={styles.actionText}>Recetas</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => handleEdit(item)}>
           <Text style={styles.actionText}>Editar</Text>
         </TouchableOpacity>
@@ -168,6 +298,68 @@ const RecipeGroupsScreen = ({ apiUrl }) => {
             <View style={styles.modalActions}>
               <Button title="Cancelar" onPress={() => setModalVisible(false)} />
               <Button title="Guardar" onPress={handleSave} />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={manageModalVisible}
+        onRequestClose={() => setManageModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalHeader}>
+              {selectedGroup
+                ? `Recetas de ${selectedGroup.name}`
+                : "Recetas del grupo"}
+            </Text>
+            <View style={styles.recipesSection}>
+              <Text style={styles.sectionTitle}>En este grupo</Text>
+              {groupRecipes.length > 0 ? (
+                groupRecipes.map((r) => (
+                  <View key={r._id} style={styles.recipeRow}>
+                    <Text style={styles.recipeTitle}>{r.title}</Text>
+                    <TouchableOpacity
+                      onPress={() => handleRemoveRecipeFromGroup(r._id)}
+                    >
+                      <Text style={styles.removeText}>Quitar</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.emptyTextSmall}>
+                  No hay recetas en este grupo.
+                </Text>
+              )}
+
+              <Text style={[styles.sectionTitle, { marginTop: 16 }]}>
+                Otras recetas para añadir
+              </Text>
+              {availableRecipes.length > 0 ? (
+                availableRecipes.map((r) => (
+                  <View key={r._id} style={styles.recipeRow}>
+                    <Text style={styles.recipeTitle}>{r.title}</Text>
+                    <TouchableOpacity
+                      onPress={() => handleAddRecipeToGroup(r._id)}
+                    >
+                      <Text style={styles.addText}>Añadir</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.emptyTextSmall}>
+                  No tienes más recetas para añadir.
+                </Text>
+              )}
+            </View>
+            <View style={styles.modalActions}>
+              <Button
+                title="Cerrar"
+                onPress={() => setManageModalVisible(false)}
+              />
             </View>
           </View>
         </View>
@@ -278,6 +470,40 @@ const styles = StyleSheet.create({
   modalActions: {
     flexDirection: "row",
     justifyContent: "space-around",
+  },
+  recipesSection: {
+    maxHeight: 320,
+  },
+  sectionTitle: {
+    fontSize: 13,
+    color: "#9ca3af",
+    marginBottom: 6,
+    fontWeight: "600",
+  },
+  recipeRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 6,
+  },
+  recipeTitle: {
+    flex: 1,
+    fontSize: 15,
+    color: "#f9fafb",
+    marginRight: 8,
+  },
+  removeText: {
+    color: "#ef4444",
+    fontWeight: "600",
+  },
+  addText: {
+    color: "#3b82f6",
+    fontWeight: "600",
+  },
+  emptyTextSmall: {
+    color: "#9ca3af",
+    fontSize: 13,
+    marginTop: 4,
   },
 });
 
